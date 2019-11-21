@@ -45,7 +45,8 @@ RUN pip3 --no-cache-dir install \
     scipy \
     Pillow \
     pyyaml \
-    py3nvml
+    py3nvml \
+    tqdm
 
 # Install tensorflow
 RUN pip3 --no-cache-dir install tensorflow-gpu==1.8.0

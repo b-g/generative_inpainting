@@ -5,6 +5,9 @@ import tensorflow as tf
 import neuralgym as ng
 from inpaint_model import InpaintCAModel
 import glob
+import os
+import tqdm
+
 
 g = None
 sess = None
@@ -51,27 +54,48 @@ def inpaint(output_image, image, mask):
     result = result[0][:, :, ::-1]
     return result
 
+def images_folder(filepath):
+    folder = os.path.expanduser(filepath)
+    images = []
+    images = glob.glob(os.path.join(folder, "*.png"))
+    images.extend(glob.glob(os.path.join(folder, "*.jpg")))
+    images.extend(glob.glob(os.path.join(folder, "*.jpeg")))
+    return images
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--image', default='', type=str,
+    parser.add_argument('--image_dir', default='', type=str,
                         help='The filename of image to be completed.')
-    parser.add_argument('--mask', default='', type=str,
+    parser.add_argument('--mask_dir', default='', type=str,
                         help='The filename of mask, value 255 indicates mask.')
-    parser.add_argument('--output', default='output.png', type=str,
+    parser.add_argument('--output_dir', default='', type=str,
                         help='Where to write output.')
     parser.add_argument('--checkpoint_dir', default='', type=str,
                         help='The directory of tensorflow checkpoint.')
     args, unknown = parser.parse_known_args()
 
+    images = images_folder(args.image_dir)
+    masks = images_folder(args.mask_dir)
+
+    # use first image to define width and height
+    first_image = cv2.imread(images[0], cv2.IMREAD_COLOR)
+    h, w, _ = first_image.shape
     opts = {
         'checkpoint_dir': args.checkpoint_dir,
-        'width': 680,
-        'height': 512
+        'width': w,
+        'height': h
     }
+    print('opts:', opts)
     output_image = setup(opts)
-    image = cv2.imread(args.image)
-    mask = cv2.imread(args.mask)
-    assert image.shape == mask.shape
-    result = inpaint(output_image, image, mask)
-    cv2.imwrite(args.output, result)
+
+    for index, image_path in enumerate(tqdm.tqdm(images)):
+        image = cv2.imread(image_path, cv2.IMREAD_COLOR)
+        mask = cv2.imread(masks[index], cv2.IMREAD_COLOR)
+        assert image.shape == mask.shape
+        result = inpaint(output_image, image, mask)
+        out_path = os.path.join(
+            args.output_dir, 
+            os.path.splitext(os.path.basename(image_path))[0] + ".png"
+        )
+        print(out_path)
+        cv2.imwrite(out_path, result)
