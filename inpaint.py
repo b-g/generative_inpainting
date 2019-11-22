@@ -65,11 +65,11 @@ def images_folder(filepath):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--image_dir', default='', type=str,
-                        help='The filename of image to be completed.')
+                        help='Folder of the images to be completed, dimensions have to be a power of two.')
     parser.add_argument('--mask_dir', default='', type=str,
-                        help='The filename of mask, value 255 indicates mask.')
+                        help='Folder of the masks, value 255 indicates mask.')
     parser.add_argument('--output_dir', default='', type=str,
-                        help='Where to write output.')
+                        help='Where to write the output.')
     parser.add_argument('--checkpoint_dir', default='', type=str,
                         help='The directory of tensorflow checkpoint.')
     args, unknown = parser.parse_known_args()
@@ -85,12 +85,13 @@ if __name__ == '__main__':
         'width': w,
         'height': h
     }
-    print('opts:', opts)
     output_image = setup(opts)
+    print(output_image.shape)
 
     for index, image_path in enumerate(tqdm.tqdm(images)):
         image = cv2.imread(image_path, cv2.IMREAD_COLOR)
         mask = cv2.imread(masks[index], cv2.IMREAD_COLOR)
+        # print(image.shape, mask.shape)
         assert image.shape == mask.shape
         result = inpaint(output_image, image, mask)
         out_path = os.path.join(
