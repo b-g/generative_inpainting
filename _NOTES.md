@@ -1,5 +1,5 @@
 ## Install
-1. `nvidia-docker build -t generative-inpainting:v0 .`
+1. `docker build -t generative-inpainting:v0 .`
 2. Download the pretrained models e.g. Places2 and copy it to `model_logs`
 
 ## Running
