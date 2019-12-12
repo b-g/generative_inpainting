@@ -21,10 +21,7 @@ RUN apt-get install -y \
 # Install OpenCV
 RUN apt-get install -y \
     libopencv-dev \
-    python-opencv \
-    libjpeg-dev \
-    libpng-dev \
-    libtiff-dev
+    python-opencv
 
 # Cleanup
 RUN rm -rf /var/lib/apt/lists/*
@@ -40,7 +37,3 @@ RUN pip3 --no-cache-dir install \
 RUN pip3 --no-cache-dir install \
     tensorflow-gpu==1.8.0 \
     git+git://github.com/JiahuiYu/neuralgym.git@88292adb524186693a32404c0cfdc790426ea441
-
-ENV LD_LIBRARY_PATH /usr/local/cuda/extras/CUPTI/lib64:/usr/local/cuda/lib64:$LD_LIBRARY_PATH
-
-WORKDIR /home
